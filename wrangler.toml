@@ -1,0 +1,12 @@
+name = "bigdogclub-vip"
+compatibility_date = "2024-01-01"
+pages_build_output_dir = "."
+
+# Environment variables — set secrets in Cloudflare dashboard, NOT here
+# Dashboard → Pages → bigdogclub-vip → Settings → Environment Variables
+#
+# Required secrets (mark as "Secret"):
+#   TIKTOK_CLIENT_KEY     = awtn0vkmpbgkr7hv
+#   TIKTOK_CLIENT_SECRET  = (your secret)
+#   TIKTOK_REDIRECT_URI   = https://bigdogclub.vip/api/auth/callback
+#   APP_BASE_URL          = https://bigdogclub.vip

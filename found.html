@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>You Found Patrick!! 🐾</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #0D0A05;
+      color: #F5E6C8;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+      text-align: center;
+      padding: 30px 20px;
+    }
+
+    /* Burst background */
+    .burst {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 40%, #3D2A08 0%, #0D0A05 65%);
+      z-index: 0;
+    }
+
+    /* Confetti */
+    .confetti-wrap {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .confetti-piece {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      top: -20px;
+      border-radius: 2px;
+      animation: fall var(--fall-dur) linear var(--fall-delay) infinite;
+    }
+
+    @keyframes fall {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+    }
+
+    /* Main content */
+    .content {
+      position: relative;
+      z-index: 2;
+      max-width: 500px;
+      width: 100%;
+    }
+
+    /* Paw burst animation */
+    .paw-burst {
+      font-size: 100px;
+      animation: pawBounce 0.6s cubic-bezier(0.36,0.07,0.19,0.97) both;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    @keyframes pawBounce {
+      0% { transform: scale(0) rotate(-20deg); opacity: 0; }
+      60% { transform: scale(1.3) rotate(5deg); opacity: 1; }
+      80% { transform: scale(0.9) rotate(-3deg); }
+      100% { transform: scale(1) rotate(0deg); }
+    }
+
+    .exclaim {
+      font-size: clamp(2rem, 8vw, 3.2rem);
+      font-weight: 900;
+      background: linear-gradient(135deg, #FFCD6B, #FF8C42);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.15;
+      animation: slideUp 0.5s ease 0.3s both;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .sub {
+      font-size: 1.1rem;
+      color: #8a6a40;
+      margin: 14px 0 32px;
+      line-height: 1.7;
+      animation: slideUp 0.5s ease 0.5s both;
+    }
+
+    /* Item badge */
+    .item-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #1a120a, #221808);
+      border: 1px solid #3a2810;
+      border-radius: 50px;
+      padding: 8px 20px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #FFCD6B;
+      margin-bottom: 32px;
+      animation: slideUp 0.5s ease 0.6s both;
+    }
+
+    /* CTA buttons */
+    .cta-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      animation: slideUp 0.5s ease 0.7s both;
+    }
+
+    .btn-tiktok-login {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      background: #fff;
+      color: #000;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 900;
+      padding: 18px 36px;
+      border-radius: 50px;
+      text-decoration: none;
+      box-shadow: 0 6px 30px rgba(0,0,0,0.5);
+      cursor: pointer;
+      border: none;
+      width: 100%;
+      transition: transform 0.2s;
+    }
+    .btn-tiktok-login:hover { transform: scale(1.03); }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: transparent;
+      color: #FFCD6B;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 14px 36px;
+      border-radius: 50px;
+      border: 1px solid #3a2810;
+      text-decoration: none;
+      cursor: pointer;
+      width: 100%;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .btn-secondary:hover { border-color: #FFCD6B; background: #1a120a; }
+
+    .fine-print {
+      font-size: 0.8rem;
+      color: #4a3820;
+      margin-top: 20px;
+      animation: slideUp 0.5s ease 0.9s both;
+    }
+
+    /* Return visitor message (hidden by default) */
+    .return-msg {
+      display: none;
+      background: linear-gradient(135deg, #1a120a, #221808);
+      border: 1px solid #3a2810;
+      border-radius: 16px;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      font-size: 1rem;
+      color: #FFCD6B;
+      line-height: 1.6;
+      animation: slideUp 0.4s ease both;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="burst"></div>
+  <div class="confetti-wrap" id="confetti"></div>
+
+  <div class="content">
+    <span class="paw-burst">🐾</span>
+
+    <h1 class="exclaim">You Found Patrick!</h1>
+
+    <p class="sub">
+      You just tapped into the Big Dog Club.<br/>
+      This isn't an accident — Patrick chose you.
+    </p>
+
+    <!-- Dynamic item badge — populated by JS based on URL param ?item=ball|keychain|dogtag -->
+    <div class="item-badge" id="itemBadge">🎾 Tennis Ball #???</div>
+
+    <!-- Return visitor banner (shown if they've tapped before) -->
+    <div class="return-msg" id="returnMsg">
+      👋 Welcome back, Big Dog. Patrick remembers you.<br/>
+      <span id="tapCount" style="font-size:0.85rem; color:#8a6a40;">Tap #2 — keep it up.</span>
+    </div>
+
+    <div class="cta-stack">
+      <button class="btn-tiktok-login" onclick="handleTikTokLogin()">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="black"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.75a8.28 8.28 0 004.84 1.55V6.85a4.85 4.85 0 01-1.07-.16z"/></svg>
+        Join with TikTok — It's Free
+      </button>
+
+      <a href="https://tiktok.com/@patrickbigdog" class="btn-secondary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#FFCD6B"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.75a8.28 8.28 0 004.84 1.55V6.85a4.85 4.85 0 01-1.07-.16z"/></svg>
+        Just follow @patrickbigdog
+      </a>
+    </div>
+
+    <p class="fine-print">No spam. No nonsense. Just Patrick being Patrick.</p>
+  </div>
+
+  <script>
+    // ── Confetti ──────────────────────────────────────────────
+    const confettiColors = ['#FFCD6B','#FF8C42','#fff','#C75B1A','#FFE0A0'];
+    const wrap = document.getElementById('confetti');
+    for (let i = 0; i < 60; i++) {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.cssText = `
+        left: ${Math.random() * 100}%;
+        background: ${confettiColors[Math.floor(Math.random() * confettiColors.length)]};
+        width: ${Math.random() * 10 + 6}px;
+        height: ${Math.random() * 10 + 6}px;
+        border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+        --fall-dur: ${(Math.random() * 2.5 + 2).toFixed(1)}s;
+        --fall-delay: ${(Math.random() * 4).toFixed(1)}s;
+      `;
+      wrap.appendChild(el);
+    }
+
+    // ── Item badge from URL param ─────────────────────────────
+    const params = new URLSearchParams(window.location.search);
+    const item = params.get('item') || 'ball';
+    const itemNum = params.get('n') || '???';
+    const itemMap = {
+      ball:     { emoji: '🎾', label: 'Tennis Ball' },
+      keychain: { emoji: '🔑', label: 'Keychain' },
+      dogtag:   { emoji: '🏷️', label: 'Dog Tag' },
+    };
+    const info = itemMap[item] || itemMap.ball;
+    document.getElementById('itemBadge').textContent =
+      `${info.emoji} ${info.label} #${itemNum}`;
+
+    // ── Return visitor detection (localStorage) ───────────────
+    const tapKey = `bdc_taps_${item}_${itemNum}`;
+    const prevTaps = parseInt(localStorage.getItem(tapKey) || '0');
+    const newTaps = prevTaps + 1;
+    localStorage.setItem(tapKey, newTaps);
+
+    if (prevTaps > 0) {
+      const returnMsg = document.getElementById('returnMsg');
+      returnMsg.style.display = 'block';
+      document.getElementById('tapCount').textContent =
+        `Tap #${newTaps} — ${newTaps >= 10 ? "you're a legend 🏆" : newTaps >= 5 ? "keep it up 🔥" : "keep it up."}`;
+    }
+
+    // ── TikTok OAuth ──────────────────────────────────────────
+    function handleTikTokLogin() {
+      // Replace with real TikTok OAuth URL once Client Key is configured:
+      // const url = `https://www.tiktok.com/v2/auth/authorize?client_key=YOUR_KEY&scope=user.info.basic&response_type=code&redirect_uri=https://bigdogclub.vip/auth/callback&state=found`;
+      // window.location.href = url;
+      alert('TikTok OAuth — add Client Key to activate!');
+    }
+  </script>
+
+</body>
+</html>

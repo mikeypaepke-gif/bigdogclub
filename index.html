@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Big Dog Club VIP 🏆</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #0D0A05;
+      color: #F5E6C8;
+      overflow-x: hidden;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      min-height: 100vh;
+      background: radial-gradient(ellipse at 50% 0%, #3D2A08 0%, #0D0A05 70%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 20px;
+      position: relative;
+    }
+
+    .stars {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .star {
+      position: absolute;
+      background: #FFCD6B;
+      border-radius: 50%;
+      animation: twinkle var(--d) ease-in-out infinite;
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.1; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.4); }
+    }
+
+    .badge {
+      background: linear-gradient(135deg, #FFCD6B, #FF8C42);
+      color: #2D1A00;
+      font-size: 0.85rem;
+      font-weight: 900;
+      padding: 6px 18px;
+      border-radius: 50px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-logo {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #FFCD6B, #FF8C42);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 70px;
+      box-shadow: 0 0 60px rgba(255,180,50,0.4), 0 0 120px rgba(255,140,66,0.15);
+      margin-bottom: 28px;
+      position: relative;
+      z-index: 1;
+      animation: glow 3s ease-in-out infinite;
+    }
+
+    @keyframes glow {
+      0%, 100% { box-shadow: 0 0 60px rgba(255,180,50,0.4), 0 0 120px rgba(255,140,66,0.15); }
+      50% { box-shadow: 0 0 80px rgba(255,180,50,0.7), 0 0 160px rgba(255,140,66,0.3); }
+    }
+
+    .hero h1 {
+      font-size: clamp(2.5rem, 8vw, 4.5rem);
+      font-weight: 900;
+      background: linear-gradient(135deg, #FFCD6B, #FF8C42);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.1;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero h1 span {
+      display: block;
+      font-size: clamp(1.1rem, 3vw, 1.5rem);
+      font-weight: 700;
+      background: none;
+      -webkit-text-fill-color: #a07840;
+      color: #a07840;
+      margin-top: 10px;
+    }
+
+    .hero-sub {
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      color: #8a6a40;
+      max-width: 500px;
+      margin: 20px auto 0;
+      line-height: 1.7;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Login CTA ── */
+    .login-section {
+      margin-top: 44px;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .btn-tiktok-login {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: #fff;
+      color: #000;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 900;
+      padding: 16px 36px;
+      border-radius: 50px;
+      text-decoration: none;
+      box-shadow: 0 6px 30px rgba(0,0,0,0.5);
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+      border: none;
+    }
+    .btn-tiktok-login:hover { transform: translateY(-3px) scale(1.03); }
+
+    .login-note {
+      font-size: 0.85rem;
+      color: #6a5030;
+    }
+
+    /* ── Perks ── */
+    .perks {
+      padding: 80px 20px;
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .perks h2 {
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+      font-weight: 900;
+      background: linear-gradient(135deg, #FFCD6B, #FF8C42);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 48px;
+    }
+
+    .perks-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 24px;
+    }
+
+    .perk-card {
+      background: linear-gradient(135deg, #1a120a, #221808);
+      border: 1px solid #3a2810;
+      border-radius: 20px;
+      padding: 32px 24px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .perk-card:hover { border-color: #FFCD6B; transform: translateY(-4px); }
+
+    .perk-icon { font-size: 2.5rem; margin-bottom: 16px; }
+
+    .perk-card h3 {
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: #FFCD6B;
+      margin-bottom: 10px;
+    }
+
+    .perk-card p {
+      font-size: 0.95rem;
+      color: #8a6a40;
+      line-height: 1.6;
+    }
+
+    /* ── NFC Section ── */
+    .nfc-section {
+      background: linear-gradient(135deg, #1a0f00, #2D1A00);
+      border-top: 1px solid #3a2810;
+      border-bottom: 1px solid #3a2810;
+      padding: 80px 20px;
+      text-align: center;
+    }
+
+    .nfc-section h2 {
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+      font-weight: 900;
+      color: #FFCD6B;
+      margin-bottom: 16px;
+    }
+
+    .nfc-section p {
+      color: #8a6a40;
+      font-size: 1.1rem;
+      max-width: 520px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    .nfc-items {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      flex-wrap: wrap;
+      margin-top: 48px;
+    }
+
+    .nfc-item {
+      background: #0D0A05;
+      border: 1px solid #3a2810;
+      border-radius: 20px;
+      padding: 28px 36px;
+      font-size: 2.5rem;
+      text-align: center;
+      min-width: 140px;
+    }
+
+    .nfc-item p {
+      font-size: 0.9rem;
+      color: #6a5030;
+      margin-top: 10px;
+      font-weight: 700;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 30px;
+      background: #060402;
+      color: #4a3820;
+      font-size: 0.9rem;
+    }
+
+    footer a { color: #6a5030; text-decoration: none; }
+    footer a:hover { color: #FFCD6B; }
+  </style>
+</head>
+<body>
+
+  <!-- Stars -->
+  <div class="stars" id="stars"></div>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="badge">🏆 Exclusive Members Only</div>
+
+    <div class="hero-logo">🐶</div>
+
+    <h1>
+      Big Dog Club
+      <span>You're either a big dog or you're not.</span>
+    </h1>
+
+    <p class="hero-sub">
+      Patrick's inner circle. NFC merch, exclusive drops, early access,
+      and content the rest of the internet doesn't get.
+    </p>
+
+    <div class="login-section">
+      <button class="btn-tiktok-login" onclick="handleTikTokLogin()">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="black"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.75a8.28 8.28 0 004.84 1.55V6.85a4.85 4.85 0 01-1.07-.16z"/></svg>
+        Join with TikTok
+      </button>
+      <p class="login-note">One tap. Follow Patrick. You're in.</p>
+    </div>
+  </section>
+
+  <!-- Perks -->
+  <section class="perks">
+    <h2>What Big Dogs Get 🐾</h2>
+    <div class="perks-grid">
+      <div class="perk-card">
+        <div class="perk-icon">📦</div>
+        <h3>Exclusive Drops</h3>
+        <p>Members-only merch drops before the general public. First tap, first served.</p>
+      </div>
+      <div class="perk-card">
+        <div class="perk-icon">🎯</div>
+        <h3>NFC Loot</h3>
+        <p>Tap your Patrick merch to unlock surprises — new content, giveaway entries, secret codes.</p>
+      </div>
+      <div class="perk-card">
+        <div class="perk-icon">🎬</div>
+        <h3>Behind the Scenes</h3>
+        <p>Patrick content that never hits TikTok. Outtakes, bloopers, raw chaos.</p>
+      </div>
+      <div class="perk-card">
+        <div class="perk-icon">🏅</div>
+        <h3>Tap Streaks</h3>
+        <p>The more you tap your merch, the more you earn. Milestone rewards for real ones.</p>
+      </div>
+      <div class="perk-card">
+        <div class="perk-icon">🎲</div>
+        <h3>Giveaways</h3>
+        <p>Members-only contests. Patrick decides winners. His method is unclear.</p>
+      </div>
+      <div class="perk-card">
+        <div class="perk-icon">🐾</div>
+        <h3>The Club</h3>
+        <p>You're a Big Dog now. Act accordingly.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- NFC -->
+  <section class="nfc-section">
+    <h2>Tap Into the Club 📲</h2>
+    <p>
+      Every piece of Patrick merch has an NFC chip inside.
+      Tap it with your phone to unlock experiences, enter drops, and prove you're the real deal.
+    </p>
+    <div class="nfc-items">
+      <div class="nfc-item">
+        🎾
+        <p>Tennis Ball</p>
+      </div>
+      <div class="nfc-item">
+        🔑
+        <p>Keychain</p>
+      </div>
+      <div class="nfc-item">
+        🏷️
+        <p>Dog Tag</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    © 2026 Big Dog Club · <a href="https://patrickbig.dog">patrickbig.dog</a> · bigdogclub.vip
+  </footer>
+
+  <script>
+    // Generate stars
+    const container = document.getElementById('stars');
+    for (let i = 0; i < 80; i++) {
+      const s = document.createElement('div');
+      s.className = 'star';
+      const size = Math.random() * 2.5 + 0.5;
+      s.style.cssText = `
+        width: ${size}px; height: ${size}px;
+        top: ${Math.random() * 100}%;
+        left: ${Math.random() * 100}%;
+        --d: ${(Math.random() * 3 + 2).toFixed(1)}s;
+        animation-delay: ${(Math.random() * 4).toFixed(1)}s;
+      `;
+      container.appendChild(s);
+    }
+
+    function handleTikTokLogin() {
+      // Placeholder — replace with actual TikTok OAuth URL when Client Key is ready
+      // e.g. https://www.tiktok.com/v2/auth/authorize?client_key=YOUR_KEY&scope=user.info.basic,user.info.profile&response_type=code&redirect_uri=...
+      alert('TikTok OAuth goes here — add Client Key to activate.');
+    }
+  </script>
+
+</body>
+</html>
