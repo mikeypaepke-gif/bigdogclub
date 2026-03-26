@@ -311,20 +311,23 @@
       display: inline-flex;
       align-items: center;
       gap: 12px;
-      background: #fff;
-      color: #000;
+      background: linear-gradient(135deg, #FFCD6B, #FF8C42);
+      color: #1a0e00;
       font-family: 'Nunito', sans-serif;
-      font-size: 1.15rem;
+      font-size: 1.2rem;
       font-weight: 900;
-      padding: 16px 36px;
+      padding: 18px 40px;
       border-radius: 50px;
       text-decoration: none;
-      box-shadow: 0 6px 30px rgba(0,0,0,0.5);
+      box-shadow: 0 8px 40px rgba(255, 160, 50, 0.45);
       transition: transform 0.2s, box-shadow 0.2s;
       cursor: pointer;
       border: none;
     }
-    .btn-tiktok-login:hover { transform: translateY(-3px) scale(1.03); }
+    .btn-tiktok-login:hover {
+      transform: translateY(-3px) scale(1.04);
+      box-shadow: 0 12px 50px rgba(255, 160, 50, 0.65);
+    }
 
     .login-note {
       font-size: 0.85rem;
@@ -645,26 +648,26 @@
 
     <!-- Hero -->
     <section class="hero">
-      <div class="badge">🏆 Exclusive Members Only</div>
+      <div class="badge">🐾 You Found It. You're In.</div>
 
       <div class="hero-logo">🐶</div>
 
       <h1>
         Big Dog Club
-        <span>You're either a big dog or you're not.</span>
+        <span>Patrick's invite-only inner circle.</span>
       </h1>
 
       <p class="hero-sub">
-        Patrick's inner circle. NFC merch, exclusive drops, early access,
-        and content the rest of the internet doesn't get.
+        This page doesn't get shared. It doesn't get posted.<br/>
+        Finding it means you already belong here.
       </p>
 
       <div class="login-section">
         <button class="btn-tiktok-login" onclick="handleTikTokLogin()">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="black"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.75a8.28 8.28 0 004.84 1.55V6.85a4.85 4.85 0 01-1.07-.16z"/></svg>
-          Join with TikTok
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="#1a0e00"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.75a8.28 8.28 0 004.84 1.55V6.85a4.85 4.85 0 01-1.07-.16z"/></svg>
+          Claim Your Spot with TikTok
         </button>
-        <p class="login-note">One tap. Follow Patrick. You're in.</p>
+        <p class="login-note">Free. Takes 10 seconds. Patrick is watching.</p>
       </div>
     </section>
 
