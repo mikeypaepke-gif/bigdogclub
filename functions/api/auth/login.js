@@ -6,7 +6,10 @@ export async function onRequestGet(context) {
   const { env } = context;
 
   const clientKey = env.TIKTOK_CLIENT_KEY;
-  const redirectUri = env.TIKTOK_REDIRECT_URI; // e.g. https://bigdogclub.vip/api/auth/callback
+  // Dynamically build redirect URI from the incoming request's host
+  // so the same code works on both bigdogclub.vip and patrickbig.dog
+  const reqUrl = new URL(request.url);
+  const redirectUri = `${reqUrl.protocol}//${reqUrl.host}/api/auth/callback`;
 
   // PKCE code verifier + challenge
   const codeVerifier = generateCodeVerifier();

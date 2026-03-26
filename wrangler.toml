@@ -8,5 +8,9 @@ pages_build_output_dir = "."
 # Required secrets (mark as "Secret"):
 #   TIKTOK_CLIENT_KEY     = awtn0vkmpbgkr7hv
 #   TIKTOK_CLIENT_SECRET  = (your secret)
-#   TIKTOK_REDIRECT_URI   = https://bigdogclub.vip/api/auth/callback
-#   APP_BASE_URL          = https://bigdogclub.vip
+#
+# Note: redirect_uri and base URLs are now derived dynamically from the request host,
+# so the same deployment handles both bigdogclub.vip and patrickbig.dog automatically.
+# Just register both callback URLs in the TikTok developer portal:
+#   https://bigdogclub.vip/api/auth/callback
+#   https://patrickbig.dog/api/auth/callback

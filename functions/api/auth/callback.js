@@ -1,18 +1,16 @@
 /**
  * GET /api/auth/callback
  * Handles TikTok OAuth callback — exchanges code for token, auto-follows, sets session
+ * Works from both bigdogclub.vip and patrickbig.dog — all URLs derived from request host
  */
-
-const TIKTOK_ACCOUNTS_TO_FOLLOW = [
-  // Add open_id values here once known, OR use usernames via the API
-  // For now we attempt follow by username lookup after auth
-];
 
 const FOLLOW_USERNAMES = ['patrickbigdog', 'bigdogclub']; // update 2nd handle when confirmed
 
 export async function onRequestGet(context) {
   const { request, env } = context;
   const url = new URL(request.url);
+  const baseUrl = `${url.protocol}//${url.host}`;
+  const redirectUri = `${baseUrl}/api/auth/callback`;
 
   const code = url.searchParams.get('code');
   const returnedState = url.searchParams.get('state');
@@ -20,18 +18,18 @@ export async function onRequestGet(context) {
 
   // Handle user denial
   if (error) {
-    return Response.redirect(`${env.APP_BASE_URL}/join?error=denied`, 302);
+    return Response.redirect(`${baseUrl}/?error=denied`, 302);
   }
 
   if (!code) {
-    return Response.redirect(`${env.APP_BASE_URL}/join?error=no_code`, 302);
+    return Response.redirect(`${baseUrl}/?error=no_code`, 302);
   }
 
   // Retrieve + validate PKCE cookie
   const cookieHeader = request.headers.get('Cookie') || '';
   const cookieMatch = cookieHeader.match(/tt_oauth=([^;]+)/);
   if (!cookieMatch) {
-    return Response.redirect(`${env.APP_BASE_URL}/join?error=session_expired`, 302);
+    return Response.redirect(`${baseUrl}/?error=session_expired`, 302);
   }
 
   let codeVerifier, state;
@@ -40,12 +38,12 @@ export async function onRequestGet(context) {
     codeVerifier = decoded.codeVerifier;
     state = decoded.state;
   } catch {
-    return Response.redirect(`${env.APP_BASE_URL}/join?error=invalid_session`, 302);
+    return Response.redirect(`${baseUrl}/?error=invalid_session`, 302);
   }
 
   // CSRF state check
   if (state !== returnedState) {
-    return Response.redirect(`${env.APP_BASE_URL}/join?error=state_mismatch`, 302);
+    return Response.redirect(`${baseUrl}/?error=state_mismatch`, 302);
   }
 
   // ── Exchange code for access token ──
@@ -59,17 +57,17 @@ export async function onRequestGet(context) {
         client_secret: env.TIKTOK_CLIENT_SECRET,
         code,
         grant_type: 'authorization_code',
-        redirect_uri: env.TIKTOK_REDIRECT_URI,
+        redirect_uri: redirectUri,
         code_verifier: codeVerifier,
       }),
     });
     tokenData = await tokenRes.json();
   } catch (err) {
-    return Response.redirect(`${env.APP_BASE_URL}/join?error=token_exchange_failed`, 302);
+    return Response.redirect(`${baseUrl}/?error=token_exchange_failed`, 302);
   }
 
   if (!tokenData.access_token) {
-    return Response.redirect(`${env.APP_BASE_URL}/join?error=no_token`, 302);
+    return Response.redirect(`${baseUrl}/?error=no_token`, 302);
   }
 
   const { access_token, open_id } = tokenData;
@@ -86,7 +84,7 @@ export async function onRequestGet(context) {
   } catch {}
 
   // ── Attempt auto-follow (requires user.social.following.write scope) ──
-  // This will silently fail if the scope isn't approved yet
+  // Silently fails if scope isn't approved yet — that's fine
   for (const username of FOLLOW_USERNAMES) {
     try {
       await fetch('https://open.tiktokapis.com/v2/user/following/', {
@@ -112,11 +110,9 @@ export async function onRequestGet(context) {
   return new Response(null, {
     status: 302,
     headers: {
-      Location: `${env.APP_BASE_URL}/welcome`,
+      Location: `${baseUrl}/welcome`,
       'Set-Cookie': [
-        // Clear the OAuth temp cookie
         `tt_oauth=; Path=/; HttpOnly; Secure; Max-Age=0`,
-        // Set session
         `bdc_session=${sessionEncoded}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${60 * 60 * 24 * 30}`,
       ].join(', '),
     },
