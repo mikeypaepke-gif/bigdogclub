@@ -8,17 +8,218 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
+    :root {
+      --base: #0d1b2a;
+      --deep-ocean: #071a2e;
+      --ocean-mid: #0a2a4a;
+      --ocean-dark: #0d1b2a;
+      --sand: #F5EDD6;
+      --gold: #C9A84C;
+      --gold-light: #D4B85A;
+      --warm-gray: #8A8070;
+      --teal: #1a4a5e;
+      --navy: #0D1B2A;
+    }
+
     body {
       font-family: 'Nunito', sans-serif;
-      background: #0D0A05;
+      background: var(--base);
       color: #F5E6C8;
       overflow-x: hidden;
+      position: relative;
+    }
+
+    /* ============================================
+       OCEAN BACKGROUND LAYER
+       ============================================ */
+    .ocean-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background: linear-gradient(
+        180deg,
+        #0d1b2a 0%,
+        #071a2e 20%,
+        #0a2a4a 50%,
+        #0d3458 75%,
+        #0d1b2a 100%
+      );
+    }
+
+    .ocean-depth-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background: linear-gradient(180deg, transparent 0%, rgba(10,22,40,0.4) 50%, rgba(13,33,55,0.6) 100%);
+      opacity: 0;
+      transition: opacity 0.8s ease;
+    }
+
+    /* Caustic light shimmer */
+    .caustics {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0.18;
+      background:
+        radial-gradient(ellipse 600px 200px at 20% 50%, rgba(26,74,94,0.8), transparent),
+        radial-gradient(ellipse 400px 150px at 70% 30%, rgba(201,168,76,0.3), transparent),
+        radial-gradient(ellipse 500px 180px at 50% 70%, rgba(26,74,94,0.6), transparent);
+      animation: causticShift 20s ease-in-out infinite alternate;
+    }
+
+    @keyframes causticShift {
+      0% {
+        background:
+          radial-gradient(ellipse 600px 200px at 20% 50%, rgba(26,74,94,0.8), transparent),
+          radial-gradient(ellipse 400px 150px at 70% 30%, rgba(201,168,76,0.3), transparent),
+          radial-gradient(ellipse 500px 180px at 50% 70%, rgba(26,74,94,0.6), transparent);
+      }
+      50% {
+        background:
+          radial-gradient(ellipse 500px 250px at 40% 40%, rgba(26,74,94,0.6), transparent),
+          radial-gradient(ellipse 450px 180px at 60% 60%, rgba(201,168,76,0.2), transparent),
+          radial-gradient(ellipse 600px 160px at 30% 55%, rgba(26,74,94,0.5), transparent);
+      }
+      100% {
+        background:
+          radial-gradient(ellipse 550px 220px at 60% 45%, rgba(26,74,94,0.7), transparent),
+          radial-gradient(ellipse 380px 200px at 35% 55%, rgba(201,168,76,0.25), transparent),
+          radial-gradient(ellipse 480px 170px at 70% 35%, rgba(26,74,94,0.55), transparent);
+      }
+    }
+
+    .caustics::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 300px 300px at 30% 40%, rgba(100,180,220,0.12), transparent),
+        radial-gradient(ellipse 250px 250px at 70% 60%, rgba(80,160,200,0.08), transparent),
+        radial-gradient(ellipse 400px 200px at 50% 30%, rgba(201,168,76,0.06), transparent);
+      animation: shimmerPulse 12s ease-in-out infinite alternate;
+    }
+
+    @keyframes shimmerPulse {
+      0% { opacity: 0.4; transform: scale(1) translate(0, 0); }
+      33% { opacity: 0.7; transform: scale(1.05) translate(2%, -1%); }
+      66% { opacity: 0.5; transform: scale(0.98) translate(-1%, 2%); }
+      100% { opacity: 0.8; transform: scale(1.03) translate(1%, -2%); }
+    }
+
+    /* ============================================
+       GRAIN TEXTURE OVERLAY
+       ============================================ */
+    .grain::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0.04;
+      pointer-events: none;
+      z-index: 5;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      background-size: 200px 200px;
+    }
+
+    /* ============================================
+       BUBBLES
+       ============================================ */
+    .bubble {
+      position: fixed;
+      bottom: -20px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(200,220,240,0.6), rgba(150,190,220,0.2));
+      border: 1px solid rgba(200,220,240,0.15);
+      pointer-events: none;
+      z-index: 2;
+      animation: bubbleRise linear infinite;
+      box-shadow: 0 0 4px rgba(150,200,230,0.1), inset 0 0 3px rgba(255,255,255,0.08);
+    }
+
+    @keyframes bubbleRise {
+      0% { transform: translateY(0) translateX(0) scale(1); opacity: 0; }
+      5% { opacity: var(--bubble-opacity, 0.05); }
+      50% { transform: translateY(-50vh) translateX(15px) scale(1.05); }
+      95% { opacity: var(--bubble-opacity, 0.05); }
+      100% { transform: translateY(-110vh) translateX(-10px) scale(0.9); opacity: 0; }
+    }
+
+    /* ============================================
+       SWIMMING DOGS
+       ============================================ */
+    .swim-dog {
+      position: fixed;
+      pointer-events: none;
+      z-index: 2;
+      height: auto;
+      filter: drop-shadow(0 2px 6px rgba(100,180,220,0.2));
+      will-change: transform;
+      left: 0;
+      top: 0;
+    }
+
+    .swim-dog svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      overflow: visible;
+    }
+
+    .swim-dog .dog-body-group { animation: dogBob 0.8s ease-in-out infinite; }
+    .swim-dog .dog-tilt { animation: dogTilt 1.5s ease-in-out infinite; transform-origin: 50% 60%; }
+    .swim-dog .leg-front-left { animation: paddleFrontA 1.5s ease-in-out infinite; transform-origin: 22px 32px; }
+    .swim-dog .leg-front-right { animation: paddleFrontB 1.5s ease-in-out infinite; transform-origin: 22px 32px; }
+    .swim-dog .leg-rear-left { animation: paddleRearA 1.5s ease-in-out infinite; transform-origin: 52px 34px; }
+    .swim-dog .leg-rear-right { animation: paddleRearB 1.5s ease-in-out infinite; transform-origin: 52px 34px; }
+    .swim-dog .ear { animation: earFlop 1.5s ease-in-out infinite; transform-origin: 20px 12px; }
+    .swim-dog .tail { animation: tailWag 0.6s ease-in-out infinite alternate; transform-origin: 60px 22px; }
+    .swim-dog .wake { animation: wakePulse 1.2s ease-in-out infinite; }
+
+    @keyframes dogBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes dogTilt { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-2deg); } 75% { transform: rotate(2deg); } }
+    @keyframes paddleFrontA { 0% { transform: rotate(-25deg); } 50% { transform: rotate(30deg); } 100% { transform: rotate(-25deg); } }
+    @keyframes paddleFrontB { 0% { transform: rotate(30deg); } 50% { transform: rotate(-25deg); } 100% { transform: rotate(30deg); } }
+    @keyframes paddleRearA { 0% { transform: rotate(-20deg); } 50% { transform: rotate(25deg); } 100% { transform: rotate(-20deg); } }
+    @keyframes paddleRearB { 0% { transform: rotate(25deg); } 50% { transform: rotate(-20deg); } 100% { transform: rotate(25deg); } }
+    @keyframes earFlop { 0%, 100% { transform: rotate(0deg) translateY(0); } 30% { transform: rotate(5deg) translateY(1px); } 70% { transform: rotate(-3deg) translateY(-1px); } }
+    @keyframes tailWag { 0% { transform: rotate(-12deg); } 100% { transform: rotate(12deg); } }
+    @keyframes wakePulse { 0%, 100% { opacity: 0.3; transform: scaleX(0.8); } 50% { opacity: 0.6; transform: scaleX(1.1); } }
+
+    /* ============================================
+       OCEAN CREATURES (whale, dolphins, fish)
+       ============================================ */
+    .ocean-creature {
+      position: fixed;
+      pointer-events: none;
+      left: 0;
+      top: 0;
+      will-change: transform;
+    }
+    .ocean-creature svg { width: 100%; height: auto; display: block; }
+
+    .whale-tail { animation: whaleFluke 3s ease-in-out infinite; transform-origin: 70% 50%; }
+    @keyframes whaleFluke { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(5deg); } 75% { transform: rotate(-5deg); } }
+
+    .dolphin-tail { animation: dolphinKick 0.8s ease-in-out infinite; transform-origin: 60% 50%; }
+    @keyframes dolphinKick { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(8deg); } }
+
+    .fish-tail { animation: fishFlick 0.3s ease-in-out infinite alternate; transform-origin: 80% 50%; }
+    @keyframes fishFlick { 0% { transform: rotate(-6deg); } 100% { transform: rotate(6deg); } }
+
+    /* ============================================
+       BDC CONTENT — sits above ocean background
+       ============================================ */
+    .bdc-content {
+      position: relative;
+      z-index: 10;
     }
 
     /* ── Hero ── */
     .hero {
       min-height: 100vh;
-      background: radial-gradient(ellipse at 50% 0%, #3D2A08 0%, #0D0A05 70%);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -26,23 +227,6 @@
       text-align: center;
       padding: 40px 20px;
       position: relative;
-    }
-
-    .stars {
-      position: absolute;
-      inset: 0;
-      overflow: hidden;
-      pointer-events: none;
-    }
-    .star {
-      position: absolute;
-      background: #FFCD6B;
-      border-radius: 50%;
-      animation: twinkle var(--d) ease-in-out infinite;
-    }
-    @keyframes twinkle {
-      0%, 100% { opacity: 0.1; transform: scale(1); }
-      50% { opacity: 0.8; transform: scale(1.4); }
     }
 
     .badge {
@@ -97,14 +281,14 @@
       font-size: clamp(1.1rem, 3vw, 1.5rem);
       font-weight: 700;
       background: none;
-      -webkit-text-fill-color: #a07840;
-      color: #a07840;
+      -webkit-text-fill-color: #b8956a;
+      color: #b8956a;
       margin-top: 10px;
     }
 
     .hero-sub {
       font-size: clamp(1rem, 2.5vw, 1.2rem);
-      color: #8a6a40;
+      color: #9a8a6a;
       max-width: 500px;
       margin: 20px auto 0;
       line-height: 1.7;
@@ -144,7 +328,7 @@
 
     .login-note {
       font-size: 0.85rem;
-      color: #6a5030;
+      color: #7a6a50;
     }
 
     /* ── Perks ── */
@@ -172,11 +356,12 @@
     }
 
     .perk-card {
-      background: linear-gradient(135deg, #1a120a, #221808);
-      border: 1px solid #3a2810;
+      background: rgba(13,27,42,0.7);
+      border: 1px solid rgba(26,74,94,0.3);
       border-radius: 20px;
       padding: 32px 24px;
       transition: border-color 0.2s, transform 0.2s;
+      backdrop-filter: blur(8px);
     }
     .perk-card:hover { border-color: #FFCD6B; transform: translateY(-4px); }
 
@@ -191,17 +376,18 @@
 
     .perk-card p {
       font-size: 0.95rem;
-      color: #8a6a40;
+      color: #9a8a6a;
       line-height: 1.6;
     }
 
     /* ── NFC Section ── */
     .nfc-section {
-      background: linear-gradient(135deg, #1a0f00, #2D1A00);
-      border-top: 1px solid #3a2810;
-      border-bottom: 1px solid #3a2810;
+      background: rgba(7,26,46,0.8);
+      border-top: 1px solid rgba(26,74,94,0.3);
+      border-bottom: 1px solid rgba(26,74,94,0.3);
       padding: 80px 20px;
       text-align: center;
+      backdrop-filter: blur(8px);
     }
 
     .nfc-section h2 {
@@ -212,7 +398,7 @@
     }
 
     .nfc-section p {
-      color: #8a6a40;
+      color: #9a8a6a;
       font-size: 1.1rem;
       max-width: 520px;
       margin: 0 auto;
@@ -228,8 +414,8 @@
     }
 
     .nfc-item {
-      background: #0D0A05;
-      border: 1px solid #3a2810;
+      background: rgba(13,27,42,0.8);
+      border: 1px solid rgba(26,74,94,0.3);
       border-radius: 20px;
       padding: 28px 36px;
       font-size: 2.5rem;
@@ -239,7 +425,7 @@
 
     .nfc-item p {
       font-size: 0.9rem;
-      color: #6a5030;
+      color: #7a6a50;
       margin-top: 10px;
       font-weight: 700;
     }
@@ -248,132 +434,667 @@
     footer {
       text-align: center;
       padding: 30px;
-      background: #060402;
-      color: #4a3820;
+      background: rgba(7,15,26,0.9);
+      color: #5a6a7a;
       font-size: 0.9rem;
     }
 
-    footer a { color: #6a5030; text-decoration: none; }
+    footer a { color: #7a8a6a; text-decoration: none; }
     footer a:hover { color: #FFCD6B; }
   </style>
 </head>
 <body>
 
-  <!-- Stars -->
-  <div class="stars" id="stars"></div>
+  <!-- OCEAN BACKGROUND LAYERS -->
+  <div class="ocean-bg"></div>
+  <div class="ocean-depth-overlay" id="depthOverlay"></div>
+  <div class="caustics"></div>
 
-  <!-- Hero -->
-  <section class="hero">
-    <div class="badge">🏆 Exclusive Members Only</div>
+  <!-- BUBBLES — 24 bubbles spread across screen -->
+  <div class="bubble" style="left:2%;width:6px;height:6px;--bubble-opacity:0.15;animation-duration:28s;animation-delay:0s;"></div>
+  <div class="bubble" style="left:6%;width:10px;height:10px;--bubble-opacity:0.18;animation-duration:22s;animation-delay:3s;"></div>
+  <div class="bubble" style="left:11%;width:5px;height:5px;--bubble-opacity:0.14;animation-duration:35s;animation-delay:1s;"></div>
+  <div class="bubble" style="left:16%;width:12px;height:12px;--bubble-opacity:0.20;animation-duration:18s;animation-delay:7s;"></div>
+  <div class="bubble" style="left:21%;width:8px;height:8px;--bubble-opacity:0.16;animation-duration:30s;animation-delay:5s;"></div>
+  <div class="bubble" style="left:26%;width:6px;height:6px;--bubble-opacity:0.15;animation-duration:25s;animation-delay:2s;"></div>
+  <div class="bubble" style="left:31%;width:14px;height:14px;--bubble-opacity:0.18;animation-duration:20s;animation-delay:9s;"></div>
+  <div class="bubble" style="left:36%;width:5px;height:5px;--bubble-opacity:0.13;animation-duration:38s;animation-delay:4s;"></div>
+  <div class="bubble" style="left:41%;width:9px;height:9px;--bubble-opacity:0.17;animation-duration:24s;animation-delay:6s;"></div>
+  <div class="bubble" style="left:46%;width:7px;height:7px;--bubble-opacity:0.15;animation-duration:32s;animation-delay:1s;"></div>
+  <div class="bubble" style="left:51%;width:15px;height:15px;--bubble-opacity:0.20;animation-duration:16s;animation-delay:8s;"></div>
+  <div class="bubble" style="left:56%;width:6px;height:6px;--bubble-opacity:0.14;animation-duration:40s;animation-delay:3s;"></div>
+  <div class="bubble" style="left:61%;width:11px;height:11px;--bubble-opacity:0.18;animation-duration:19s;animation-delay:10s;"></div>
+  <div class="bubble" style="left:66%;width:5px;height:5px;--bubble-opacity:0.13;animation-duration:33s;animation-delay:0s;"></div>
+  <div class="bubble" style="left:71%;width:8px;height:8px;--bubble-opacity:0.16;animation-duration:27s;animation-delay:5s;"></div>
+  <div class="bubble" style="left:76%;width:13px;height:13px;--bubble-opacity:0.19;animation-duration:21s;animation-delay:7s;"></div>
+  <div class="bubble" style="left:81%;width:6px;height:6px;--bubble-opacity:0.14;animation-duration:29s;animation-delay:12s;"></div>
+  <div class="bubble" style="left:86%;width:10px;height:10px;--bubble-opacity:0.17;animation-duration:23s;animation-delay:14s;"></div>
+  <div class="bubble" style="left:91%;width:7px;height:7px;--bubble-opacity:0.15;animation-duration:34s;animation-delay:2s;"></div>
+  <div class="bubble" style="left:95%;width:9px;height:9px;--bubble-opacity:0.16;animation-duration:26s;animation-delay:11s;"></div>
+  <div class="bubble" style="left:8%;width:12px;height:12px;--bubble-opacity:0.19;animation-duration:17s;animation-delay:15s;"></div>
+  <div class="bubble" style="left:34%;width:5px;height:5px;--bubble-opacity:0.12;animation-duration:36s;animation-delay:8s;"></div>
+  <div class="bubble" style="left:54%;width:8px;height:8px;--bubble-opacity:0.16;animation-duration:31s;animation-delay:13s;"></div>
+  <div class="bubble" style="left:74%;width:11px;height:11px;--bubble-opacity:0.18;animation-duration:19s;animation-delay:6s;"></div>
 
-    <div class="hero-logo">🐶</div>
+  <!-- SWIMMING DOGS (SVG Doggy-Paddle) -->
+  <div class="swim-dog" data-size="80" data-opacity="0.22">
+    <svg viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg">
+      <g class="dog-tilt"><g class="dog-body-group">
+        <g class="wake">
+          <path d="M68 28 Q72 26 76 28 Q80 30 84 28" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1" stroke-linecap="round"/>
+          <path d="M70 32 Q74 30 78 32" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="0.8" stroke-linecap="round"/>
+        </g>
+        <g class="tail"><path d="M60 22 Q65 14 68 16" fill="none" stroke="#5C3D2E" stroke-width="3" stroke-linecap="round"/></g>
+        <g class="leg-rear-left"><path d="M50 34 L54 44 L50 46" fill="none" stroke="#5C3D2E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <g class="leg-rear-right"><path d="M48 34 L52 44 L48 46" fill="none" stroke="#4A3020" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <g class="leg-front-left"><path d="M22 32 L18 42 L22 44" fill="none" stroke="#5C3D2E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <g class="leg-front-right"><path d="M24 32 L20 42 L24 44" fill="none" stroke="#4A3020" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <ellipse cx="38" cy="26" rx="22" ry="12" fill="#6B4226"/>
+        <ellipse cx="26" cy="28" rx="8" ry="7" fill="#8B6340"/>
+        <circle cx="16" cy="16" r="11" fill="#6B4226"/>
+        <g class="ear"><ellipse cx="24" cy="14" rx="5" ry="8" fill="#4A2E18" transform="rotate(20 24 14)"/></g>
+        <ellipse cx="9" cy="19" rx="5" ry="3.5" fill="#8B6340"/>
+        <ellipse cx="5.5" cy="18" rx="2" ry="1.5" fill="#2A1A0E"/>
+        <circle cx="12" cy="13" r="1.5" fill="#1A0E06"/>
+        <circle cx="12" cy="13" r="0.5" fill="white"/>
+        <path d="M7 21 Q9 23 11 21" fill="none" stroke="#4A2E18" stroke-width="0.7" stroke-linecap="round"/>
+      </g></g>
+    </svg>
+  </div>
 
-    <h1>
-      Big Dog Club
-      <span>You're either a big dog or you're not.</span>
-    </h1>
+  <div class="swim-dog" data-size="95" data-opacity="0.25">
+    <svg viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg">
+      <g class="dog-tilt"><g class="dog-body-group">
+        <g class="wake">
+          <path d="M68 28 Q72 26 76 28 Q80 30 84 28" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1" stroke-linecap="round"/>
+          <path d="M70 32 Q74 30 78 32" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="0.8" stroke-linecap="round"/>
+        </g>
+        <g class="tail"><path d="M60 22 Q66 12 70 15" fill="none" stroke="#7A8B9A" stroke-width="3" stroke-linecap="round"/></g>
+        <g class="leg-rear-left"><path d="M50 34 L54 44 L50 46" fill="none" stroke="#7A8B9A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <g class="leg-rear-right"><path d="M48 34 L52 44 L48 46" fill="none" stroke="#5E6E7E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <g class="leg-front-left"><path d="M22 32 L18 42 L22 44" fill="none" stroke="#7A8B9A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <g class="leg-front-right"><path d="M24 32 L20 42 L24 44" fill="none" stroke="#5E6E7E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <ellipse cx="38" cy="26" rx="22" ry="12" fill="#7A8B9A"/>
+        <ellipse cx="34" cy="24" rx="6" ry="4" fill="#5E6E7E" opacity="0.6"/>
+        <ellipse cx="44" cy="28" rx="5" ry="3" fill="#5E6E7E" opacity="0.5"/>
+        <ellipse cx="26" cy="28" rx="7" ry="6" fill="#F5F0E8"/>
+        <circle cx="16" cy="16" r="11" fill="#7A8B9A"/>
+        <g class="ear"><ellipse cx="25" cy="14" rx="5.5" ry="9" fill="#5E6E7E" transform="rotate(18 25 14)"/></g>
+        <ellipse cx="13" cy="11" rx="3" ry="1.5" fill="#A0B0C0" opacity="0.6"/>
+        <ellipse cx="9" cy="19" rx="5" ry="3.5" fill="#F5F0E8"/>
+        <ellipse cx="5.5" cy="18" rx="2" ry="1.5" fill="#1A0E06"/>
+        <circle cx="12" cy="13" r="1.5" fill="#0A0604"/>
+        <circle cx="12" cy="13" r="0.5" fill="white"/>
+        <path d="M7 21 Q9 23 11 21" fill="none" stroke="#5E6E7E" stroke-width="0.7" stroke-linecap="round"/>
+      </g></g>
+    </svg>
+  </div>
 
-    <p class="hero-sub">
-      Patrick's inner circle. NFC merch, exclusive drops, early access,
-      and content the rest of the internet doesn't get.
-    </p>
+  <div class="swim-dog" data-size="65" data-opacity="0.20">
+    <svg viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg">
+      <g class="dog-tilt"><g class="dog-body-group">
+        <g class="wake">
+          <path d="M68 28 Q72 26 76 28 Q80 30 84 28" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1" stroke-linecap="round"/>
+        </g>
+        <g class="tail"><path d="M60 22 Q64 15 67 17" fill="none" stroke="#D4A86A" stroke-width="3" stroke-linecap="round"/></g>
+        <g class="leg-rear-left"><path d="M50 34 L54 44 L50 46" fill="none" stroke="#D4A86A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <g class="leg-rear-right"><path d="M48 34 L52 44 L48 46" fill="none" stroke="#C09558" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <g class="leg-front-left"><path d="M22 32 L18 42 L22 44" fill="none" stroke="#D4A86A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <g class="leg-front-right"><path d="M24 32 L20 42 L24 44" fill="none" stroke="#C09558" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <ellipse cx="38" cy="26" rx="22" ry="12" fill="#D4A86A"/>
+        <ellipse cx="26" cy="28" rx="8" ry="7" fill="#E8C98A"/>
+        <circle cx="16" cy="16" r="11" fill="#D4A86A"/>
+        <g class="ear"><ellipse cx="24" cy="14" rx="5" ry="8" fill="#C09558" transform="rotate(22 24 14)"/></g>
+        <ellipse cx="9" cy="19" rx="5" ry="3.5" fill="#E8C98A"/>
+        <ellipse cx="5.5" cy="18" rx="2" ry="1.5" fill="#2A1A0E"/>
+        <circle cx="12" cy="13" r="1.5" fill="#2A1808"/>
+        <circle cx="12" cy="13" r="0.5" fill="white"/>
+        <path d="M7 21 Q9 23 11 21" fill="none" stroke="#C09558" stroke-width="0.7" stroke-linecap="round"/>
+      </g></g>
+    </svg>
+  </div>
 
-    <div class="login-section">
-      <button class="btn-tiktok-login" onclick="handleTikTokLogin()">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="black"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.75a8.28 8.28 0 004.84 1.55V6.85a4.85 4.85 0 01-1.07-.16z"/></svg>
-        Join with TikTok
-      </button>
-      <p class="login-note">One tap. Follow Patrick. You're in.</p>
-    </div>
-  </section>
+  <div class="swim-dog" data-size="85" data-opacity="0.23">
+    <svg viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg">
+      <g class="dog-tilt"><g class="dog-body-group">
+        <g class="wake">
+          <path d="M68 28 Q72 26 76 28 Q80 30 84 28" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1" stroke-linecap="round"/>
+          <path d="M70 32 Q74 30 78 32" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="0.8" stroke-linecap="round"/>
+        </g>
+        <g class="tail"><path d="M60 22 Q65 13 69 16" fill="none" stroke="#3B2415" stroke-width="3" stroke-linecap="round"/></g>
+        <g class="leg-rear-left"><path d="M50 34 L54 44 L50 46" fill="none" stroke="#3B2415" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <g class="leg-rear-right"><path d="M48 34 L52 44 L48 46" fill="none" stroke="#2E1A0E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <g class="leg-front-left"><path d="M22 32 L18 42 L22 44" fill="none" stroke="#3B2415" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <g class="leg-front-right"><path d="M24 32 L20 42 L24 44" fill="none" stroke="#2E1A0E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <ellipse cx="38" cy="26" rx="22" ry="12" fill="#3B2415"/>
+        <ellipse cx="26" cy="28" rx="8" ry="7" fill="#8B5E3C"/>
+        <circle cx="16" cy="16" r="11" fill="#3B2415"/>
+        <g class="ear"><ellipse cx="25" cy="14" rx="5.5" ry="8.5" fill="#2E1A0E" transform="rotate(20 25 14)"/></g>
+        <ellipse cx="9" cy="19" rx="5" ry="3.5" fill="#8B5E3C"/>
+        <ellipse cx="5.5" cy="18" rx="2" ry="1.5" fill="#1A0E06"/>
+        <circle cx="12" cy="13" r="1.5" fill="#0E0804"/>
+        <circle cx="12" cy="13" r="0.5" fill="white"/>
+        <path d="M7 21 Q9 23 11 21" fill="none" stroke="#2E1A0E" stroke-width="0.7" stroke-linecap="round"/>
+      </g></g>
+    </svg>
+  </div>
 
-  <!-- Perks -->
-  <section class="perks">
-    <h2>What Big Dogs Get 🐾</h2>
-    <div class="perks-grid">
-      <div class="perk-card">
-        <div class="perk-icon">📦</div>
-        <h3>Exclusive Drops</h3>
-        <p>Members-only merch drops before the general public. First tap, first served.</p>
-      </div>
-      <div class="perk-card">
-        <div class="perk-icon">🎯</div>
-        <h3>NFC Loot</h3>
-        <p>Tap your Patrick merch to unlock surprises — new content, giveaway entries, secret codes.</p>
-      </div>
-      <div class="perk-card">
-        <div class="perk-icon">🎬</div>
-        <h3>Behind the Scenes</h3>
-        <p>Patrick content that never hits TikTok. Outtakes, bloopers, raw chaos.</p>
-      </div>
-      <div class="perk-card">
-        <div class="perk-icon">🏅</div>
-        <h3>Tap Streaks</h3>
-        <p>The more you tap your merch, the more you earn. Milestone rewards for real ones.</p>
-      </div>
-      <div class="perk-card">
-        <div class="perk-icon">🎲</div>
-        <h3>Giveaways</h3>
-        <p>Members-only contests. Patrick decides winners. His method is unclear.</p>
-      </div>
-      <div class="perk-card">
-        <div class="perk-icon">🐾</div>
-        <h3>The Club</h3>
-        <p>You're a Big Dog now. Act accordingly.</p>
-      </div>
-    </div>
-  </section>
+  <div class="swim-dog" data-size="60" data-opacity="0.18">
+    <svg viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg">
+      <g class="dog-tilt"><g class="dog-body-group">
+        <g class="wake">
+          <path d="M68 28 Q72 26 76 28 Q80 30 84 28" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="0.8" stroke-linecap="round"/>
+        </g>
+        <g class="tail"><path d="M60 22 Q64 14 67 16" fill="none" stroke="#F0E6D6" stroke-width="3" stroke-linecap="round"/></g>
+        <g class="leg-rear-left"><path d="M50 34 L54 44 L50 46" fill="none" stroke="#F0E6D6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <g class="leg-rear-right"><path d="M48 34 L52 44 L48 46" fill="none" stroke="#DDD0BE" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <g class="leg-front-left"><path d="M22 32 L18 42 L22 44" fill="none" stroke="#F0E6D6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <g class="leg-front-right"><path d="M24 32 L20 42 L24 44" fill="none" stroke="#DDD0BE" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <ellipse cx="38" cy="26" rx="22" ry="12" fill="#F0E6D6"/>
+        <ellipse cx="26" cy="28" rx="8" ry="7" fill="#FFF8F0"/>
+        <circle cx="16" cy="16" r="11" fill="#F0E6D6"/>
+        <g class="ear"><ellipse cx="24" cy="14" rx="5" ry="8" fill="#DDD0BE" transform="rotate(20 24 14)"/></g>
+        <ellipse cx="9" cy="19" rx="5" ry="3.5" fill="#FFF8F0"/>
+        <ellipse cx="5.5" cy="18" rx="2" ry="1.5" fill="#2A1A0E"/>
+        <circle cx="12" cy="13" r="1.5" fill="#2A1808"/>
+        <circle cx="12" cy="13" r="0.5" fill="white"/>
+        <path d="M7 21 Q9 23 11 21" fill="none" stroke="#DDD0BE" stroke-width="0.7" stroke-linecap="round"/>
+      </g></g>
+    </svg>
+  </div>
 
-  <!-- NFC -->
-  <section class="nfc-section">
-    <h2>Tap Into the Club 📲</h2>
-    <p>
-      Every piece of Patrick merch has an NFC chip inside.
-      Tap it with your phone to unlock experiences, enter drops, and prove you're the real deal.
-    </p>
-    <div class="nfc-items">
-      <div class="nfc-item">
-        🎾
-        <p>Tennis Ball</p>
-      </div>
-      <div class="nfc-item">
-        🔑
-        <p>Keychain</p>
-      </div>
-      <div class="nfc-item">
-        🏷️
-        <p>Dog Tag</p>
-      </div>
-    </div>
-  </section>
+  <div class="swim-dog" data-size="100" data-opacity="0.22">
+    <svg viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg">
+      <g class="dog-tilt"><g class="dog-body-group">
+        <g class="wake">
+          <path d="M68 28 Q72 26 76 28 Q80 30 84 28" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1" stroke-linecap="round"/>
+          <path d="M70 32 Q74 30 78 32" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="0.8" stroke-linecap="round"/>
+          <path d="M72 25 Q75 23 78 25" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="0.6" stroke-linecap="round"/>
+        </g>
+        <g class="tail"><path d="M60 22 Q66 11 70 14" fill="none" stroke="#2E2E2E" stroke-width="3.5" stroke-linecap="round"/></g>
+        <g class="leg-rear-left"><path d="M50 34 L54 44 L50 46" fill="none" stroke="#2E2E2E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <g class="leg-rear-right"><path d="M48 34 L52 44 L48 46" fill="none" stroke="#1E1E1E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <g class="leg-front-left"><path d="M22 32 L18 42 L22 44" fill="none" stroke="#2E2E2E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <g class="leg-front-right"><path d="M24 32 L20 42 L24 44" fill="none" stroke="#1E1E1E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <ellipse cx="38" cy="26" rx="22" ry="12" fill="#2E2E2E"/>
+        <ellipse cx="40" cy="22" rx="10" ry="5" fill="#8B4513" opacity="0.5"/>
+        <ellipse cx="24" cy="28" rx="8" ry="7" fill="#F5F0E8"/>
+        <circle cx="16" cy="16" r="11" fill="#2E2E2E"/>
+        <g class="ear"><ellipse cx="25" cy="14" rx="6" ry="9" fill="#1A1A1A" transform="rotate(18 25 14)"/></g>
+        <ellipse cx="14" cy="11" rx="3.5" ry="1.5" fill="#B8860B" opacity="0.5"/>
+        <ellipse cx="9" cy="19" rx="5" ry="3.5" fill="#F5F0E8"/>
+        <ellipse cx="5.5" cy="18" rx="2" ry="1.5" fill="#1A0E06"/>
+        <circle cx="12" cy="13" r="1.5" fill="#0A0604"/>
+        <circle cx="12" cy="13" r="0.5" fill="white"/>
+        <path d="M6 21 Q9 24 12 21" fill="none" stroke="#1A1A1A" stroke-width="0.7" stroke-linecap="round"/>
+      </g></g>
+    </svg>
+  </div>
 
-  <!-- Footer -->
-  <footer>
-    © 2026 Big Dog Club · <a href="https://patrickbig.dog">patrickbig.dog</a> · bigdogclub.vip
-  </footer>
+  <!-- WHALE (rare, deep background) -->
+  <div id="whale-container"></div>
+
+  <!-- DOLPHINS (occasional pods) -->
+  <div id="dolphin-container"></div>
+
+  <!-- SCHOOL OF FISH -->
+  <div id="fish-container"></div>
+
+  <!-- ========== BDC CONTENT (above ocean) ========== -->
+  <div class="bdc-content grain">
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="badge">🏆 Exclusive Members Only</div>
+
+      <div class="hero-logo">🐶</div>
+
+      <h1>
+        Big Dog Club
+        <span>You're either a big dog or you're not.</span>
+      </h1>
+
+      <p class="hero-sub">
+        Patrick's inner circle. NFC merch, exclusive drops, early access,
+        and content the rest of the internet doesn't get.
+      </p>
+
+      <div class="login-section">
+        <button class="btn-tiktok-login" onclick="handleTikTokLogin()">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="black"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.75a8.28 8.28 0 004.84 1.55V6.85a4.85 4.85 0 01-1.07-.16z"/></svg>
+          Join with TikTok
+        </button>
+        <p class="login-note">One tap. Follow Patrick. You're in.</p>
+      </div>
+    </section>
+
+    <!-- Perks -->
+    <section class="perks">
+      <h2>What Big Dogs Get 🐾</h2>
+      <div class="perks-grid">
+        <div class="perk-card">
+          <div class="perk-icon">📦</div>
+          <h3>Exclusive Drops</h3>
+          <p>Members-only merch drops before the general public. First tap, first served.</p>
+        </div>
+        <div class="perk-card">
+          <div class="perk-icon">🎯</div>
+          <h3>NFC Loot</h3>
+          <p>Tap your Patrick merch to unlock surprises — new content, giveaway entries, secret codes.</p>
+        </div>
+        <div class="perk-card">
+          <div class="perk-icon">🎬</div>
+          <h3>Behind the Scenes</h3>
+          <p>Patrick content that never hits TikTok. Outtakes, bloopers, raw chaos.</p>
+        </div>
+        <div class="perk-card">
+          <div class="perk-icon">🏅</div>
+          <h3>Tap Streaks</h3>
+          <p>The more you tap your merch, the more you earn. Milestone rewards for real ones.</p>
+        </div>
+        <div class="perk-card">
+          <div class="perk-icon">🎲</div>
+          <h3>Giveaways</h3>
+          <p>Members-only contests. Patrick decides winners. His method is unclear.</p>
+        </div>
+        <div class="perk-card">
+          <div class="perk-icon">🐾</div>
+          <h3>The Club</h3>
+          <p>You're a Big Dog now. Act accordingly.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- NFC -->
+    <section class="nfc-section">
+      <h2>Tap Into the Club 📲</h2>
+      <p>
+        Every piece of Patrick merch has an NFC chip inside.
+        Tap it with your phone to unlock experiences, enter drops, and prove you're the real deal.
+      </p>
+      <div class="nfc-items">
+        <div class="nfc-item">
+          🎾
+          <p>Tennis Ball</p>
+        </div>
+        <div class="nfc-item">
+          🔑
+          <p>Keychain</p>
+        </div>
+        <div class="nfc-item">
+          🏷️
+          <p>Dog Tag</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      © 2026 Big Dog Club · <a href="https://patrickbig.dog">patrickbig.dog</a> · bigdogclub.vip
+    </footer>
+
+  </div><!-- /bdc-content -->
 
   <script>
-    // Generate stars
-    const container = document.getElementById('stars');
-    for (let i = 0; i < 80; i++) {
-      const s = document.createElement('div');
-      s.className = 'star';
-      const size = Math.random() * 2.5 + 0.5;
-      s.style.cssText = `
-        width: ${size}px; height: ${size}px;
-        top: ${Math.random() * 100}%;
-        left: ${Math.random() * 100}%;
-        --d: ${(Math.random() * 3 + 2).toFixed(1)}s;
-        animation-delay: ${(Math.random() * 4).toFixed(1)}s;
-      `;
-      container.appendChild(s);
+    // TikTok login handler
+    function handleTikTokLogin() {
+      window.location.href = '/api/auth/login';
     }
 
-    function handleTikTokLogin() {
-      // Placeholder — replace with actual TikTok OAuth URL when Client Key is ready
-      // e.g. https://www.tiktok.com/v2/auth/authorize?client_key=YOUR_KEY&scope=user.info.basic,user.info.profile&response_type=code&redirect_uri=...
-      alert('TikTok OAuth goes here — add Client Key to activate.');
-    }
+    (function() {
+      'use strict';
+
+      /* ============================================
+         OCEAN DEPTH SCROLL EFFECT
+         ============================================ */
+      var depthOverlay = document.getElementById('depthOverlay');
+
+      window.addEventListener('scroll', function() {
+        var scrollY = window.pageYOffset || document.documentElement.scrollTop;
+        var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        var progress = Math.min(scrollY / docHeight, 1);
+        depthOverlay.style.opacity = progress * 0.5;
+      }, { passive: true });
+
+      /* ============================================
+         SWIMMING DOGS — JS-DRIVEN WANDERING MOVEMENT
+         ============================================ */
+      (function initSwimDogs() {
+        var dogs = document.querySelectorAll('.swim-dog');
+        var states = [];
+        var W = window.innerWidth;
+        var H = window.innerHeight;
+
+        window.addEventListener('resize', function() {
+          W = window.innerWidth;
+          H = window.innerHeight;
+        });
+
+        dogs.forEach(function(el, i) {
+          var size = parseFloat(el.dataset.size) || 80;
+          var opacity = parseFloat(el.dataset.opacity) || 0.2;
+          var dir = (i % 2 === 0) ? 1 : -1;
+          var crossTime = 30 + Math.random() * 30;
+          var speed = W / crossTime;
+
+          var startX = (i / dogs.length) * W + (Math.random() - 0.5) * (W / dogs.length);
+          var startY = 0.1 * H + (i / dogs.length) * 0.8 * H + (Math.random() - 0.5) * (H * 0.12);
+
+          el.style.width = size + 'px';
+          el.style.opacity = opacity;
+
+          states.push({
+            el: el,
+            x: startX,
+            y: startY,
+            vx: dir * speed,
+            size: size,
+            opacity: opacity,
+            driftAmp: 8 + Math.random() * 15,
+            driftFreq: 0.3 + Math.random() * 0.4,
+            driftPhase: Math.random() * Math.PI * 2,
+            nudgeTimer: 5 + Math.random() * 10,
+            nudgeAmp: 0.3 + Math.random() * 0.4,
+            vyDrift: (Math.random() - 0.5) * 6,
+            tiltPhase: Math.random() * Math.PI * 2,
+            tiltFreq: 1 / (4 + Math.random() * 3),
+            baseTilt: (i === 1 || i === 4) ? (Math.random() * 5) : (25 + Math.random() * 10)
+          });
+        });
+
+        var lastTime = performance.now();
+
+        function tick(now) {
+          var dt = (now - lastTime) / 1000;
+          lastTime = now;
+          if (dt > 0.5) dt = 0.016;
+
+          var repulse = new Array(states.length);
+          for (var ri = 0; ri < states.length; ri++) repulse[ri] = 0;
+          for (var ri = 0; ri < states.length; ri++) {
+            for (var rj = ri + 1; rj < states.length; rj++) {
+              var dy = states[ri].y - states[rj].y;
+              var dist = Math.abs(dy);
+              if (dist < 80 && dist > 0.1) {
+                var strength = (1 - dist / 80);
+                var nudge = strength * 0.3;
+                var sign = dy > 0 ? 1 : -1;
+                repulse[ri] += sign * nudge;
+                repulse[rj] -= sign * nudge;
+              }
+            }
+          }
+
+          for (var i = 0; i < states.length; i++) {
+            var s = states[i];
+
+            s.y += repulse[i];
+            s.x += s.vx * dt;
+            s.y += s.vyDrift * dt;
+
+            s.driftPhase += s.driftFreq * dt * Math.PI * 2;
+            var sineY = Math.sin(s.driftPhase) * s.driftAmp;
+
+            s.nudgeTimer -= dt;
+            if (s.nudgeTimer <= 0) {
+              s.vx += s.vx * (Math.random() - 0.5) * s.nudgeAmp;
+              s.vyDrift += (Math.random() - 0.5) * 4;
+              s.vyDrift = Math.max(-10, Math.min(10, s.vyDrift));
+              var minSpeed = W / 60;
+              if (Math.abs(s.vx) < minSpeed) {
+                s.vx = s.vx >= 0 ? minSpeed : -minSpeed;
+              }
+              s.nudgeTimer = 5 + Math.random() * 10;
+            }
+
+            if (s.vx > 0 && s.x > W + s.size) {
+              s.x = -s.size;
+            } else if (s.vx < 0 && s.x < -s.size) {
+              s.x = W + s.size;
+            }
+
+            var drawY = s.y + sineY;
+            if (s.y > H - 20) { s.y = 20; }
+            if (s.y < 20) { s.y = H - 20; }
+
+            var scaleX = s.vx >= 0 ? -1 : 1;
+
+            s.tiltPhase += s.tiltFreq * dt * Math.PI * 2;
+            var tiltOsc = Math.sin(s.tiltPhase) * 5;
+            var tilt = (s.baseTilt + tiltOsc) * scaleX;
+
+            s.el.style.transform = 'translate(' + s.x.toFixed(1) + 'px,' + drawY.toFixed(1) + 'px) rotate(' + tilt.toFixed(1) + 'deg) scaleX(' + scaleX + ')';
+          }
+
+          requestAnimationFrame(tick);
+        }
+
+        requestAnimationFrame(tick);
+      })();
+
+      /* ============================================
+         WHALE — rare deep background pass
+         ============================================ */
+      (function initWhale() {
+        var container = document.getElementById('whale-container');
+        var W = window.innerWidth, H = window.innerHeight;
+        window.addEventListener('resize', function() { W = window.innerWidth; H = window.innerHeight; });
+
+        var whaleSVG = '<svg viewBox="0 0 280 90" xmlns="http://www.w3.org/2000/svg">'
+          + '<g class="whale-tail"><path d="M220 45 Q250 25 270 35 Q260 45 270 55 Q250 65 220 45Z" fill="#4A6B7A" opacity="0.9"/></g>'
+          + '<ellipse cx="120" cy="45" rx="105" ry="35" fill="#5A7B8A"/>'
+          + '<ellipse cx="110" cy="55" rx="80" ry="20" fill="#6A8B9A" opacity="0.6"/>'
+          + '<ellipse cx="50" cy="40" rx="20" ry="12" fill="#4A6B7A" opacity="0.4"/>'
+          + '<circle cx="35" cy="38" r="4" fill="#1A2A3A" opacity="0.8"/>'
+          + '<circle cx="35" cy="38" r="1.5" fill="rgba(255,255,255,0.3)"/>'
+          + '<path d="M18 42 Q25 48 35 45" fill="none" stroke="#4A6B7A" stroke-width="1.5" stroke-linecap="round"/>'
+          + '<path d="M60 20 Q62 8 58 10 M65 18 Q68 6 63 9" fill="none" stroke="rgba(150,200,220,0.4)" stroke-width="1.5" stroke-linecap="round"/>'
+          + '</svg>';
+
+        var active = false;
+
+        function spawnWhale() {
+          if (active) return;
+          active = true;
+          var el = document.createElement('div');
+          el.className = 'ocean-creature';
+          el.style.zIndex = '1';
+          var size = 200 + Math.random() * 80;
+          el.style.width = size + 'px';
+          el.style.opacity = (0.15 + Math.random() * 0.05).toFixed(2);
+          el.innerHTML = whaleSVG;
+          container.appendChild(el);
+
+          var goRight = Math.random() > 0.5;
+          var x = goRight ? -size - 20 : W + 20;
+          var y = H * 0.2 + Math.random() * H * 0.6;
+          var speed = W / (50 + Math.random() * 30);
+          var vx = goRight ? speed : -speed;
+          var scaleX = goRight ? -1 : 1;
+          var driftPhase = Math.random() * Math.PI * 2;
+          var tiltPhase = Math.random() * Math.PI * 2;
+          var tiltFreq = 1 / 8;
+
+          function animWhale(now) {
+            x += vx * 0.016;
+            driftPhase += 0.005;
+            tiltPhase += tiltFreq * 0.016 * Math.PI * 2;
+            var drawY = y + Math.sin(driftPhase) * 12;
+            var tilt = Math.sin(tiltPhase) * 5;
+            el.style.transform = 'translate(' + x.toFixed(1) + 'px,' + drawY.toFixed(1) + 'px) rotate(' + tilt.toFixed(1) + 'deg) scaleX(' + scaleX + ')';
+
+            var done = goRight ? (x > W + size + 20) : (x < -size - 20);
+            if (done) {
+              container.removeChild(el);
+              active = false;
+              setTimeout(spawnWhale, (45 + Math.random() * 45) * 1000);
+            } else {
+              requestAnimationFrame(animWhale);
+            }
+          }
+          requestAnimationFrame(animWhale);
+        }
+
+        setTimeout(spawnWhale, (10 + Math.random() * 30) * 1000);
+      })();
+
+      /* ============================================
+         DOLPHINS — occasional pods of 2-3
+         ============================================ */
+      (function initDolphins() {
+        var container = document.getElementById('dolphin-container');
+        var W = window.innerWidth, H = window.innerHeight;
+        window.addEventListener('resize', function() { W = window.innerWidth; H = window.innerHeight; });
+
+        var dolphinSVG = '<svg viewBox="0 0 110 45" xmlns="http://www.w3.org/2000/svg">'
+          + '<g class="dolphin-tail"><path d="M85 22 Q100 12 108 18 Q102 22 108 28 Q100 32 85 22Z" fill="#5A7A8A"/></g>'
+          + '<ellipse cx="48" cy="22" rx="42" ry="14" fill="#6A8A9A"/>'
+          + '<ellipse cx="42" cy="27" rx="30" ry="8" fill="#7A9AAA" opacity="0.6"/>'
+          + '<path d="M50 10 Q55 2 52 5" fill="none" stroke="#5A7A8A" stroke-width="2.5" stroke-linecap="round"/>'
+          + '<path d="M8 22 Q2 18 4 22 Q2 26 8 22Z" fill="#5A7A8A"/>'
+          + '<circle cx="14" cy="19" r="2.5" fill="#1A2A3A" opacity="0.9"/>'
+          + '<circle cx="14" cy="19" r="0.8" fill="rgba(255,255,255,0.4)"/>'
+          + '<path d="M5 24 Q8 27 12 25" fill="none" stroke="#4A6A7A" stroke-width="0.8" stroke-linecap="round"/>'
+          + '</svg>';
+
+        function spawnPod() {
+          var count = 2 + Math.floor(Math.random() * 2);
+          var goRight = Math.random() > 0.5;
+          var baseY = H * 0.15 + Math.random() * H * 0.6;
+          var baseSpeed = W / (18 + Math.random() * 12);
+          var els = [];
+
+          for (var i = 0; i < count; i++) {
+            var el = document.createElement('div');
+            el.className = 'ocean-creature';
+            el.style.zIndex = '2';
+            var size = 80 + Math.random() * 30;
+            el.style.width = size + 'px';
+            el.style.opacity = (0.22 + Math.random() * 0.06).toFixed(2);
+            el.innerHTML = dolphinSVG;
+            container.appendChild(el);
+
+            els.push({
+              el: el,
+              x: goRight ? (-size - 40 - i * 60) : (W + 40 + i * 60),
+              y: baseY + (Math.random() - 0.5) * 50,
+              size: size,
+              speed: baseSpeed + (Math.random() - 0.5) * 8,
+              phase: Math.random() * Math.PI * 2,
+              tiltPhase: Math.random() * Math.PI * 2,
+              tiltFreq: 1 / 3
+            });
+          }
+
+          var scaleX = goRight ? -1 : 1;
+
+          function animPod() {
+            var allDone = true;
+            for (var i = 0; i < els.length; i++) {
+              var d = els[i];
+              d.x += (goRight ? d.speed : -d.speed) * 0.016;
+              d.phase += 0.04;
+              d.tiltPhase += d.tiltFreq * 0.016 * Math.PI * 2;
+              var drawY = d.y + Math.sin(d.phase) * 8;
+              var tilt = Math.sin(d.tiltPhase) * 10;
+              d.el.style.transform = 'translate(' + d.x.toFixed(1) + 'px,' + drawY.toFixed(1) + 'px) rotate(' + tilt.toFixed(1) + 'deg) scaleX(' + scaleX + ')';
+
+              var off = goRight ? (d.x > W + d.size + 40) : (d.x < -d.size - 40);
+              if (!off) allDone = false;
+            }
+            if (allDone) {
+              for (var i = 0; i < els.length; i++) {
+                container.removeChild(els[i].el);
+              }
+              setTimeout(spawnPod, (20 + Math.random() * 20) * 1000);
+            } else {
+              requestAnimationFrame(animPod);
+            }
+          }
+          requestAnimationFrame(animPod);
+        }
+
+        setTimeout(spawnPod, (5 + Math.random() * 15) * 1000);
+      })();
+
+      /* ============================================
+         SCHOOL OF FISH — 5-8 tiny fish
+         ============================================ */
+      (function initFish() {
+        var container = document.getElementById('fish-container');
+        var W = window.innerWidth, H = window.innerHeight;
+        window.addEventListener('resize', function() { W = window.innerWidth; H = window.innerHeight; });
+
+        var fishSVG = '<svg viewBox="0 0 35 14" xmlns="http://www.w3.org/2000/svg">'
+          + '<g class="fish-tail"><path d="M27 7 Q33 2 35 5 Q33 7 35 9 Q33 12 27 7Z" fill="#6090A0"/></g>'
+          + '<ellipse cx="15" cy="7" rx="14" ry="5.5" fill="#70A0B0"/>'
+          + '<ellipse cx="12" cy="9" rx="8" ry="3" fill="#80B0C0" opacity="0.5"/>'
+          + '<circle cx="5" cy="6" r="1.5" fill="#1A2A3A" opacity="0.9"/>'
+          + '<circle cx="5" cy="6" r="0.5" fill="rgba(255,255,255,0.5)"/>'
+          + '</svg>';
+
+        function spawnSchool() {
+          var count = 5 + Math.floor(Math.random() * 4);
+          var goRight = Math.random() > 0.5;
+          var centerY = H * 0.2 + Math.random() * H * 0.5;
+          var baseSpeed = W / (8 + Math.random() * 8);
+          var els = [];
+
+          for (var i = 0; i < count; i++) {
+            var el = document.createElement('div');
+            el.className = 'ocean-creature';
+            el.style.zIndex = '3';
+            var size = 20 + Math.random() * 15;
+            el.style.width = size + 'px';
+            el.style.opacity = (0.15 + Math.random() * 0.05).toFixed(2);
+            el.innerHTML = fishSVG;
+            container.appendChild(el);
+
+            els.push({
+              el: el,
+              x: goRight ? (-size - 20 - Math.random() * 80) : (W + 20 + Math.random() * 80),
+              y: centerY + (Math.random() - 0.5) * 60,
+              size: size,
+              speed: baseSpeed + (Math.random() - 0.5) * 12,
+              phase: Math.random() * Math.PI * 2,
+              scatter: (Math.random() - 0.5) * 3,
+              tiltPhase: Math.random() * Math.PI * 2,
+              tiltFreq: 1 / 1.5
+            });
+          }
+
+          var scaleX = goRight ? -1 : 1;
+
+          function animSchool() {
+            var allDone = true;
+            for (var i = 0; i < els.length; i++) {
+              var f = els[i];
+              f.x += (goRight ? f.speed : -f.speed) * 0.016;
+              f.phase += 0.06;
+              f.tiltPhase += f.tiltFreq * 0.016 * Math.PI * 2;
+              var drawY = f.y + Math.sin(f.phase) * 4 + f.scatter;
+              var tilt = Math.sin(f.tiltPhase) * 20;
+              f.el.style.transform = 'translate(' + f.x.toFixed(1) + 'px,' + drawY.toFixed(1) + 'px) rotate(' + tilt.toFixed(1) + 'deg) scaleX(' + scaleX + ')';
+
+              var off = goRight ? (f.x > W + f.size + 40) : (f.x < -f.size - 40);
+              if (!off) allDone = false;
+            }
+            if (allDone) {
+              for (var i = 0; i < els.length; i++) {
+                container.removeChild(els[i].el);
+              }
+              setTimeout(spawnSchool, (12 + Math.random() * 15) * 1000);
+            } else {
+              requestAnimationFrame(animSchool);
+            }
+          }
+          requestAnimationFrame(animSchool);
+        }
+
+        setTimeout(spawnSchool, (3 + Math.random() * 8) * 1000);
+      })();
+
+    })();
   </script>
 
 </body>
